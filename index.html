@@ -522,33 +522,40 @@ subscription ProductEvents {
         </section>
 
         <section>
-          <h2>Example: Python</h2>
+          <h2>Example: Kotlin</h2>
 
           <pre
           style="font-size: medium;"
-          ><code data-trim contenteditable class="python">
-import graphene
+          ><code data-trim contenteditable class="java">
+import com.apurebase.kgraphql.schema.dsl.SchemaBuilder
 
-class Product(graphene.ObjectType):
-    id = graphene.String(description="The ID of the product")
-    on_stock = graphene.Int(description="The stock count for the product")
+fun SchemaBuilder.productSchema() {
+    // Define the Product type
+    type<Product> {
+        description = "A product available for purchase"
+        
+        property(Product::id) {
+            description = "The unique identifier of the product"
+        }
 
-    # Define a resolver for the on_stock field
-    def resolve_on_stock(parent, info):
-        # Assuming you have access to the product's stock count
-        # This example just adds 10 to the existing stock count for demonstration
-        return parent.on_stock + 10
+        property(Product::onStock) {
+            description = "Number of units available in stock"
+            resolver { product: Product -> product.onStock + 10 }
+        }
+    }
 
-# Usage example in a Query
-class Query(graphene.ObjectType):
-    product = graphene.Field(Product, id=graphene.String(required=True))
+    // Define a query to fetch product by ID
+    query("product") {
+        resolver { id: String -> 
+            // Fetch and return a product by ID from your data source
+            // Placeholder for product fetching logic
+            Product(id, "Sample Product", 30)
+        }
+    }
+}
 
-    def resolve_product(self, info, id):
-        # Fetch the product by id from your data source
-        # Here's a placeholder implementation
-        return Product(id=id, on_stock=20)
+data class Product(val id: String, val name: String, val onStock: Int)
 
-schema = graphene.Schema(query=Query)
 
           </code></pre>
         </section>
